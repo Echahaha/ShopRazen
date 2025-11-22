@@ -7,3 +7,4 @@ class MainNavigationController extends GetxController {
     currentIndex.value = index;
   }
 }
+//a
