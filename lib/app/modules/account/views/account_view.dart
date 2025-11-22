@@ -44,11 +44,6 @@ class AccountView extends GetView<AccountController> {
                         title: 'Ubah Password',
                         onTap: controller.navigateToChangePassword,
                       ),
-                      MenuItem(
-                        icon: Icons.location_on_outlined,
-                        title: 'Alamat',
-                        onTap: controller.navigateToAddresses,
-                      ),
                     ],
                   ),
                   SizedBox(height: 10),

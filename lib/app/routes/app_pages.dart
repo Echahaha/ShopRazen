@@ -32,6 +32,9 @@ import '../modules/main_navigation/bindings/main_navigation_binding.dart';
 import '../modules/main_navigation/views/main_navigation_view.dart';
 import '../modules/orders/bindings/orders_binding.dart';
 import '../modules/orders/views/orders_view.dart';
+import '../modules/orders/views/order_detail_view.dart';
+import '../modules/notifications/bindings/notifications_binding.dart';
+import '../modules/notifications/views/notifications_view.dart';
 
 part 'app_routes.dart';
 
@@ -110,6 +113,16 @@ class AppPages {
       name: _Paths.MAIN_NAVIGATION,
       page: () => MainNavigationView(),
       binding: MainNavigationBinding(),
+    ),
+    GetPage(
+      name: '/notifications',
+      page: () => NotificationsView(),
+      binding: NotificationsBinding(),
+    ),
+    GetPage(
+      name: '/order-detail',
+      page: () => OrderDetailView(),
+      // OrdersBinding is already registered in MainNavigationBinding; no extra binding needed
     ),
     GetPage(
       name: _Paths.ORDERS,

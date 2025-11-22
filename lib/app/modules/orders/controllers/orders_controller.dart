@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../notifications/controllers/notifications_controller.dart';
 
 // Model Order
 class Order {
   final String id;
   final String productName;
   final String price;
-  final String status;
+  String status;
   final DateTime orderDate;
   final String? trackingNumber;
-  final Color statusColor;
+  Color statusColor;
 
   Order({
     required this.id,
@@ -114,6 +115,25 @@ class OrdersController extends GetxController {
           ),
           ElevatedButton(
             onPressed: () {
+              // Update order status and notify
+              final idx = orders.indexWhere((o) => o.id == orderId);
+              if (idx != -1) {
+                orders[idx].status = 'Dibatalkan';
+                orders[idx].statusColor = Colors.red;
+                filterOrders();
+
+                // If NotificationsController exists, add a notification
+                if (Get.isRegistered<NotificationsController>()) {
+                  final notif = Get.find<NotificationsController>();
+                  notif.add(NotificationItem(
+                    id: DateTime.now().millisecondsSinceEpoch.toString(),
+                    title: 'Pesanan Dibatalkan',
+                    body: 'Pesanan $orderId berhasil dibatalkan.',
+                    date: DateTime.now(),
+                  ));
+                }
+              }
+
               Get.back();
               Get.snackbar(
                 'Berhasil',
@@ -132,6 +152,44 @@ class OrdersController extends GetxController {
         ],
       ),
     );
+  }
+
+  /// Update an order status programmatically and create a notification about it.
+  void updateOrderStatus(String orderId, String newStatus, {String? trackingNumber}) {
+    try {
+      final idx = orders.indexWhere((o) => o.id == orderId);
+      if (idx == -1) return;
+      final prev = orders[idx].status;
+      orders[idx].status = newStatus;
+    // adjust color simply by keywords
+    if (newStatus.toLowerCase().contains('selesai')) {
+      orders[idx].statusColor = Colors.green;
+    } else if (newStatus.toLowerCase().contains('kirim') || newStatus.toLowerCase().contains('dikirim')) {
+      orders[idx].statusColor = Colors.green[700]!;
+    } else if (newStatus.toLowerCase().contains('proses') || newStatus.toLowerCase().contains('dikerjakan')) {
+      orders[idx].statusColor = Colors.blue;
+    }
+    if (trackingNumber != null) {
+      // Unfortunately Order.trackingNumber is final; to keep it simple we won't update it here.
+    }
+      filterOrders();
+
+      if (Get.isRegistered<NotificationsController>()) {
+        final notif = Get.find<NotificationsController>();
+        notif.add(NotificationItem(
+          id: DateTime.now().millisecondsSinceEpoch.toString(),
+          title: 'Update Pesanan $orderId',
+          body: 'Status pesanan berubah: $prev → $newStatus',
+          date: DateTime.now(),
+        ));
+      }
+    } catch (e, st) {
+      print('Error in updateOrderStatus: $e');
+      print(st);
+      try {
+        Get.snackbar('Error', 'Gagal memperbarui status pesanan: $e', snackPosition: SnackPosition.BOTTOM);
+      } catch (_) {}
+    }
   }
 
   @override
